@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#116b45">
+<title>BD Bazar (E)</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:#f5f7f6;color:#17231d}
+button{cursor:pointer;font:inherit}
+#loginScreen{min-height:100vh;background:linear-gradient(135deg,#d9ffe9,#dce8ff);display:flex;justify-content:center;align-items:center;padding:20px}
+.login-box{background:white;width:100%;max-width:390px;padding:25px;border-radius:18px;box-shadow:0 5px 25px #0002;text-align:center}
+.login-box h2{color:#07853e;margin-top:0}
+.login-box input{width:100%;padding:14px;margin:9px 0;border:1px solid #ccc;border-radius:9px;font-size:16px}
+.code{background:#e8f8ed;color:#087b3b;font-size:30px;font-weight:bold;letter-spacing:10px;padding:15px;margin:15px 0;border-radius:10px}
+.login-button{width:100%;padding:14px;background:#078b43;color:white;border:0;border-radius:9px;font-size:17px;font-weight:bold;margin-top:10px}
+.refresh{background:#2563eb}
+#loginMessage{color:#c62828;min-height:20px}
+.demo-warning{font-size:12px;color:#68766e;line-height:1.5}
+#marketplace{display:none}
+header{background:#116b45;color:#fff;padding:18px 16px}
+.top{max-width:1050px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-size:25px;font-weight:800}
+.tag{font-size:12px;opacity:.9;margin-top:4px}
+main{max-width:1050px;margin:22px auto;padding:0 14px}
+.hero{background:linear-gradient(130deg,#e2f4e9,#f5fbf6);border-radius:18px;padding:25px 20px;margin-bottom:18px}
+h1{font-size:26px;margin:0 0 8px;color:#105b3b}
+.hero p{margin:0 0 17px;line-height:1.6;color:#42554a}
+.search{display:flex;gap:8px}
+.search input{flex:1;min-width:0;padding:13px;border:1px solid #cbd8d0;border-radius:10px;font-size:15px}
+.search button,.primary{background:#116b45;color:white;border:0;border-radius:10px;padding:12px 17px;font-weight:700}
+h2{font-size:20px;margin:22px 0 12px}
+.categories{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat{background:white;border:1px solid #e3eae5;border-radius:12px;padding:14px 8px;text-align:center;font-weight:700;cursor:pointer}
+.cat.active{border:2px solid #116b45;background:#e9f7ee;color:#116b45}
+.emoji{display:block;font-size:25px;margin-bottom:7px}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.product{background:#fff;border:1px solid #e4eae6;border-radius:13px;padding:13px;min-width:0}
+.product .pic{height:90px;background:#f0f5f1;border-radius:9px;display:grid;place-items:center;font-size:40px}
+.product h3{font-size:15px;margin:10px 0 5px;line-height:1.4}
+.price{color:#116b45;font-weight:800;font-size:14px}
+.note{font-size:12px;color:#69776f;line-height:1.5;margin-bottom:0}
+.order-btn{width:100%;margin-top:11px;padding:10px;background:#116b45;color:#fff;border:0;border-radius:8px;font-weight:700}
+#orderModal{display:none;position:fixed;inset:0;background:#0008;z-index:10;align-items:center;justify-content:center;padding:16px}
+.order-box{background:#fff;width:100%;max-width:420px;padding:20px;border-radius:14px;box-shadow:0 8px 30px #0003}
+.order-box h2{margin:0 0 12px;color:#116b45}
+.order-box input,.order-box textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #ccd8d0;border-radius:8px;font:inherit}
+.order-actions{display:flex;gap:8px;margin-top:8px}
+.order-actions button{flex:1;padding:11px;border:0;border-radius:8px;font-weight:700}
+.product-count{font-size:13px;color:#65756b;margin:0 0 10px}
+.empty{grid-column:1/-1;background:#fff;padding:20px;border-radius:12px;text-align:center;color:#68766e}
+footer{text-align:center;color:#68766e;font-size:12px;padding:25px 12px}
+@media(min-width:700px){.products{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:520px){.categories{grid-template-columns:repeat(2,1fr)}.search button{padding:12px}}
+</style>
+</head>
+<body>
+<section id="loginScreen">
+ <div class="login-box">
+  <h2>🛒 Welcome to<br>BD Bazar (E)</h2>
+  <p>আপনার অ্যাকাউন্টে প্রবেশ করুন</p>
+  <input id="loginName" type="text" placeholder="আপনার নাম" autocomplete="name">
+  <input id="loginNumber" type="tel" placeholder="মোবাইল নম্বর" inputmode="numeric" autocomplete="tel">
+  <p>নিচের ৫ ডিজিটের কোডটি লিখুন</p>
+  <div class="code" id="showCode"></div>
+  <button class="login-button refresh" type="button" onclick="newCode()">নতুন কোড দেখুন</button>
+  <input id="userCode" type="text" inputmode="numeric" maxlength="5" placeholder="৫ ডিজিটের কোড লিখুন">
+  <button class="login-button" type="button" onclick="login()">LOGIN</button>
+  <p id="loginMessage" role="alert"></p>
+  <p class="demo-warning">এটি ডেমো লগইন; আসল SMS OTP বা নম্বর যাচাই নয়।</p>
+ </div>
+</section>
+<div id="marketplace">
+<header><div class="top"><div><div class="brand">🛍️ BD Bazar (E)</div><div class="tag">বাংলাদেশের অনলাইন কেনাবেচার জায়গা</div></div></div></header>
+<main>
+ <section class="hero">
+  <h1>কেনা-বেচা হোক সহজে!</h1>
+  <p>ক্যাটাগরিতে চাপ দিয়ে পণ্য দেখুন। প্রতিটি ক্যাটাগরিতে ২০টি নমুনা পণ্য দেওয়া আছে।</p>
+  <div class="search"><input id="searchBox" type="search" placeholder="পণ্যের নাম খুঁজুন..." oninput="searchProducts()"><button type="button" onclick="searchProducts()">খুঁজুন</button></div>
+ </section>
+ <h2>জনপ্রিয় ক্যাটাগরি</h2>
+ <section class="categories" id="categories">
+  <div class="cat active" onclick="showCategory('mobile',this)"><span class="emoji">📱</span>মোবাইল</div>
+  <div class="cat" onclick="showCategory('clothes',this)"><span class="emoji">👕</span>পোশাক</div>
+  <div class="cat" onclick="showCategory('home',this)"><span class="emoji">🏠</span>ঘর ও আসবাব</div>
+  <div class="cat" onclick="showCategory('vehicle',this)"><span class="emoji">🛵</span>যানবাহন</div>
+ </section>
+ <h2 id="listTitle">মোবাইল ফোন</h2>
+ <p class="product-count" id="productCount">২০টি পণ্য</p>
+ <section class="products" id="products"></section>
+</main>
+<footer>© 2026 BD Bazar (E) — All rights reserved.</footer>
+</div>
+
+<div id="orderModal" role="dialog" aria-modal="true" aria-labelledby="orderHeading">
+ <div class="order-box">
+  <h2 id="orderHeading">পণ্য অর্ডার করুন</h2>
+  <p id="orderProductName" class="note"></p>
+  <form id="orderForm" onsubmit="submitOrder(event)">
+   <input id="buyerName" type="text" placeholder="আপনার নাম" required>
+   <input id="buyerNumber" type="tel" inputmode="tel" placeholder="মোবাইল নম্বর" required>
+   <textarea id="buyerAddress" rows="3" placeholder="সম্পূর্ণ ঠিকানা" required></textarea>
+   <div class="order-actions">
+    <button type="button" onclick="closeOrder()" style="background:#e8eeea;color:#24352b">বাতিল</button>
+    <button type="submit" style="background:#116b45;color:white">অর্ডার নিশ্চিত করুন</button>
+   </div>
+  </form>
+  <p class="note">ডেমো অর্ডার: এই ফর্মে তথ্য শুধু এই পেজে দেখানো হবে; এখনো কোনো সার্ভারে পাঠানো হবে না।</p>
+ </div>
+</div>
+
+<script>
+let correctCode="";
+const catalog={
+mobile:[
+["Samsung Galaxy A06","৳ ১২,০০০","📱"],["Samsung Galaxy A16","৳ ২০,০০০","📱"],["Samsung Galaxy A26 5G","৳ ৩৩,০০০","📱"],["Samsung Galaxy S24 FE","৳ ৬৫,০০০","📱"],["Xiaomi Redmi A5","৳ ১০,০০০","📱"],["Xiaomi Redmi 14C","৳ ১৩,০০০","📱"],["Redmi Note 14","৳ ২৩,০০০","📱"],["Redmi Note 14 Pro","৳ ৩৫,০০০","📱"],["POCO M6","৳ ১৪,০০০","📱"],["POCO X7 Pro","৳ ৩৮,০০০","📱"],["Realme Note 60","৳ ১১,০০০","📱"],["Realme C75","৳ ১৮,০০০","📱"],["Realme 14 5G","৳ ৩২,০০০","📱"],["OPPO A3x","৳ ১৩,০০০","📱"],["OPPO A5 Pro","৳ ২৫,০০০","📱"],["Vivo Y19s","৳ ১৬,০০০","📱"],["Vivo Y29","৳ ২২,০০০","📱"],["Infinix Hot 50","৳ ১৫,০০০","📱"],["Infinix Note 50","৳ ২৫,০০০","📱"],["iPhone 16","৳ ১,১৫,০০০","📱"]],
+clothes:[
+["পুরুষদের কটন টি-শার্ট","৳ ৩৫০","👕"],["পুরুষদের পোলো শার্ট","৳ ৫৫০","👕"],["পুরুষদের শার্ট","৳ ৭৫০","👔"],["জিন্স প্যান্ট","৳ ১,২০০","👖"],["গ্যাবার্ডিন প্যান্ট","৳ ৯৫০","👖"],["পাঞ্জাবি","৳ ১,১০০","🥻"],["লুঙ্গি","৳ ৪৫০","🧵"],["থ্রি-পিস","৳ ১,৫০০","👗"],["মেয়েদের কুর্তি","৳ ৮৫০","👗"],["মেয়েদের শাড়ি","৳ ১,৮০০","🥻"],["লেডিস টপস","৳ ৬৫০","👚"],["লেগিংস","৳ ৪০০","👖"],["বাচ্চাদের জামা","৳ ৫০০","🧒"],["বাচ্চাদের প্যান্ট","৳ ৩৫০","🩳"],["হুডি","৳ ৯০০","🧥"],["সুইটশার্ট","৳ ৮০০","🧥"],["জ্যাকেট","৳ ১,৬০০","🧥"],["স্কুল ড্রেস","৳ ৭০০","🎒"],["কটন ওড়না","৳ ২৫০","🧣"],["স্পোর্টস জার্সি","৳ ৫০০","⚽"]],
+home:[
+["প্লাস্টিক চেয়ার","৳ ৭৫০","🪑"],["অফিস চেয়ার","৳ ৩,৫০০","🪑"],["স্টাডি টেবিল","৳ ২,৮০০","🪑"],["ডাইনিং টেবিল","৳ ৮,০০০","🍽️"],["কাঠের খাট","৳ ১২,০০০","🛏️"],["ফোম ম্যাট্রেস","৳ ৪,৫০০","🛏️"],["ওয়ারড্রোব","৳ ৭,০০০","🚪"],["বুক শেলফ","৳ ২,৫০০","📚"],["সোফা সেট","৳ ২২,০০০","🛋️"],["টিভি স্ট্যান্ড","৳ ২,২০০","📺"],["সিলিং ফ্যান","৳ ৩,০০০","🌀"],["LED বাল্ব","৳ ১৫০","💡"],["রাইস কুকার","৳ ২,০০০","🍚"],["ইলেকট্রিক কেটলি","৳ ৯০০","🫖"],["ব্লেন্ডার","৳ ২,২০০","🥤"],["গ্যাসের চুলা","৳ ২,৫০০","🔥"],["পানির ফিল্টার","৳ ১,৮০০","🚰"],["পর্দা সেট","৳ ১,২০০","🪟"],["কার্পেট","৳ ১,৫০০","🧶"],["ডাস্টবিন","৳ ৩০০","🗑️"]],
+vehicle:[
+["Hero Splendor Plus","৳ ১,২৫,০০০","🏍️"],["Bajaj Pulsar 150","৳ ২,৩০,০০০","🏍️"],["Bajaj Discover 125","৳ ১,৬০,০০০","🏍️"],["TVS Apache RTR 160","৳ ২,১০,০০০","🏍️"],["TVS Raider 125","৳ ১,৭০,০০০","🏍️"],["Yamaha FZ-S FI","৳ ২,৯৫,০০০","🏍️"],["Yamaha R15 V4","৳ ৫,৮০,০০০","🏍️"],["Suzuki Gixxer","৳ ২,৪৫,০০০","🏍️"],["Honda SP 125","৳ ১,৮০,০০০","🏍️"],["Honda XBlade","৳ ২,২৫,০০০","🏍️"],["Runner Kite Plus","৳ ১,১৫,০০০","🏍️"],["Lifan KPR 165","৳ ২,২০,০০০","🏍️"],["Walton Fusion 125","৳ ১,২৫,০০০","🏍️"],["ইলেকট্রিক স্কুটার","৳ ৬৫,০০০","🛵"],["ইলেকট্রিক বাইক","৳ ৮৫,০০০","🚲"],["গিয়ার সাইকেল","৳ ১২,০০০","🚲"],["সাধারণ সাইকেল","৳ ৬,৫০০","🚲"],["শিশুদের সাইকেল","৳ ৪,০০০","🚲"],["ব্যবহৃত মোটরসাইকেল","৳ ৭০,০০০ থেকে","🏍️"],["ব্যবহৃত সাইকেল","৳ ২,৫০০ থেকে","🚲"]]
+};
+const titles={mobile:"মোবাইল ফোন",clothes:"পোশাক",home:"ঘর ও আসবাব",vehicle:"যানবাহন"};
+let currentCategory="mobile";
+function render(items){
+ const area=document.getElementById("products");
+ area.innerHTML="";
+ document.getElementById("productCount").innerText=items.length+"টি পণ্য";
+ if(!items.length){area.innerHTML='<div class="empty">কোনো পণ্য পাওয়া যায়নি।</div>';return;}
+ items.forEach(p=>{
+  const card=document.createElement("article");card.className="product";
+  const pic=document.createElement("div");pic.className="pic";pic.textContent=p[2];
+  const name=document.createElement("h3");name.textContent=p[0];
+  const price=document.createElement("div");price.className="price";price.textContent="দাম: "+p[1];
+  const note=document.createElement("p");note.className="note";note.textContent="নমুনা দাম — বিক্রেতার কাছে যাচাই করুন।";
+  const order=document.createElement("button");order.className="order-btn";order.type="button";order.textContent="অর্ডার করুন";
+  order.addEventListener("click",()=>openOrder(p[0],p[1]));
+  card.append(pic,name,price,note,order);area.appendChild(card);
+ });
+}
+function showCategory(category,el){
+ currentCategory=category;
+ document.querySelectorAll(".cat").forEach(c=>c.classList.remove("active"));
+ el.classList.add("active");
+ document.getElementById("listTitle").innerText=titles[category];
+ document.getElementById("searchBox").value="";
+ render(catalog[category]);
+}
+function searchProducts(){
+ const q=document.getElementById("searchBox").value.trim().toLowerCase();
+ render(catalog[currentCategory].filter(p=>p[0].toLowerCase().includes(q)));
+}
+let selectedOrderProduct="";
+function openOrder(name,price){
+ selectedOrderProduct=name+" — "+price;
+ document.getElementById("orderProductName").innerText="পণ্য: "+selectedOrderProduct;
+ document.getElementById("orderModal").style.display="flex";
+}
+function closeOrder(){
+ document.getElementById("orderModal").style.display="none";
+}
+function submitOrder(event){
+ event.preventDefault();
+ const name=document.getElementById("buyerName").value.trim();
+ const number=document.getElementById("buyerNumber").value.trim();
+ const address=document.getElementById("buyerAddress").value.trim();
+ if(!name||!number||!address){alert("নাম, মোবাইল নম্বর ও ঠিকানা লিখুন।");return;}
+ alert("ডেমো অর্ডার তৈরি হয়েছে!\\nপণ্য: "+selectedOrderProduct+"\\nনাম: "+name+"\\nমোবাইল: "+number+"\\nঠিকানা: "+address+"\\n\\nএটি এখনো বিক্রেতার কাছে পাঠানো হয়নি।");
+ document.getElementById("orderForm").reset();
+ closeOrder();
+}
+function newCode(){
+ correctCode=String(Math.floor(10000+Math.random()*90000));
+ document.getElementById("showCode").innerText=correctCode;
+ document.getElementById("userCode").value="";
+ document.getElementById("loginMessage").innerText="";
+}
+function login(){
+ const name=document.getElementById("loginName").value.trim();
+ const number=document.getElementById("loginNumber").value.trim();
+ const code=document.getElementById("userCode").value.trim();
+ const message=document.getElementById("loginMessage");
+ if(!name||!number){message.innerText="নাম ও মোবাইল নম্বর লিখুন!";return;}
+ if(!/^\d{5}$/.test(code)||code!==correctCode){message.innerText="ভুল কোড! সঠিক ৫ ডিজিটের কোড লিখুন।";return;}
+ document.getElementById("loginScreen").style.display="none";
+ document.getElementById("marketplace").style.display="block";
+ window.scrollTo(0,0);
+}
+newCode();
+render(catalog.mobile);
+</script>
+</body>
+</html>
